@@ -1,0 +1,93 @@
+
+spring:
+  datasource:
+    type: com.alibaba.druid.pool.DruidDataSource
+    dynamic: # 未分库分表的动态数据源配置
+      primary: ds0 #设置默认的数据源或者数据源组,默认值即为master
+      strict: false #严格匹配数据源,默认false. true未匹配到指定数据源时抛异常,false使用默认数据源
+      datasource:
+        ds_0:
+          type: com.alibaba.druid.pool.DruidDataSource
+          driver-class-name: com.mysql.cj.jdbc.Driver
+          url: jdbc:mysql://81.71.50.49:3306/ds0?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=true&serverTimezone=GMT%2B8&nullCatalogMeansCurrent=true
+          username: postgres
+          password: U&tTFG=794A8#V10
+        ds_1:
+          type: com.alibaba.druid.pool.DruidDataSource
+          driver-class-name: com.mysql.cj.jdbc.Driver
+          url: jdbc:mysql://81.71.50.49:3306/ds1?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=true&serverTimezone=GMT%2B8&nullCatalogMeansCurrent=true
+          username: root
+          password: U&tTFG=794A8#V10
+
+  shardingsphere:
+    # 是否启用sharding
+    enabled: true
+    mode:
+      # 配置放到内存中(第一次加载的数据记录到内存, 后边配置都从内存获取)
+      type: Memory
+    props:
+      sql:
+        show: true
+    datasource:
+      names: ds0, ds1
+      ds0:
+        type: com.alibaba.druid.pool.DruidDataSource
+        driver-class-name: com.mysql.cj.jdbc.Driver
+        url: jdbc:mysql://81.71.50.49:3306/ds0?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=true&serverTimezone=GMT%2B8&nullCatalogMeansCurrent=true
+        username: root
+        password: U&tTFG=794A8#V10
+      ds1:
+        type: com.alibaba.druid.pool.DruidDataSource
+        driver-class-name: com.mysql.cj.jdbc.Driver
+        url: jdbc:mysql://81.71.50.49:3306/ds1?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=true&serverTimezone=GMT%2B8&nullCatalogMeansCurrent=true
+        username: root
+        password: U&tTFG=794A8#V10
+    rules:
+      sharding:
+        tables:
+          tenant_order_tb:
+            # 配置分库分表规则
+            actual-data-nodes: ds$->{0..1}.tenant_order_tb_0$->{1..3}
+            # 分表策略
+            table-strategy:
+              standard:
+                sharding-column: tenant_id
+                sharding-algorithm-name: table-sharding-algorithm
+            # 分库策略
+            database-strategy:
+              standard:
+                sharding-column: tenant_id
+                sharding-algorithm-name: db-sharding-algorithm
+        sharding-algorithms:
+          table-sharding-algorithm:
+            type: CLASS_BASED
+            props:
+              strategy: standard
+              algorithmClassName: com.gigi.config.TenantTableShardingAlgorithm
+          db-sharding-algorithm:
+            type: CLASS_BASED
+            props:
+              strategy: standard
+              algorithmClassName: com.gigi.config.TenantDbShardingAlgorithm
+
+server:
+  port: 9002
+
+mybatis-plus:
+  #  mapper-locations: classpath:/mapper/**.xml,classpath:/sharding/mapper/**.xml
+  mapper-locations: classpath:/**/mapper/**.xml
+  configuration:
+    #在映射实体或者属性时，将数据库中表名和字段名中的下划线去掉，按照驼峰命名法映射 address_book ---> addressBook #mapUnderscoreToCamelCase: true
+    map-underscore-to-camel-case: true
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+# 打印日志级别设置
+logging:
+  level:
+    com.test: debug
+pagehelper:
+  helperDialect: mysql
+  autoRuntimeDialect: true
+  reasonable: true
+  supportMethodsArguments: true
+sharding-tables:
+  logic-table-name: tenant_order_tb_

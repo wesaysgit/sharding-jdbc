@@ -9,6 +9,7 @@ import com.gigi.entity.TenantOrderTb;
 import com.gigi.mapper.TenantOrderTbMapper;
 import com.gigi.service.TenantOrderService;
 import com.gigi.utils.TradeNoUtil;
+import com.github.pagehelper.PageHelper;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -42,6 +43,7 @@ public class ShardingJdbcTest {
 
     @Test
     public void rangeList() {
+        //PageHelper.startPage(4, 10);
         List<TenantOrderTb> tenantOrderTbs = tenantOrderService.listRangeTenantOrders(2L, 5L);
         log.info("rangeList size:{}", tenantOrderTbs.size());
     }

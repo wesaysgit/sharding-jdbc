@@ -1,5 +1,18 @@
+server:
+  port: 9002
 
 spring:
+  kafka:
+    bootstrap-servers: 81.71.50.49:9092
+    consumer: # consumer 消费者
+      group-id: kedaya_group
+      auto-offset-reset: latest
+      enable-auto-commit: true
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
   datasource:
     type: com.alibaba.druid.pool.DruidDataSource
     dynamic: # 未分库分表的动态数据源配置
@@ -52,7 +65,7 @@ spring:
             table-strategy:
               standard:
                 sharding-column: tenant_id
-                sharding-algorithm-name: table-sharding-algorithm
+                sharding-algorithm-name: table2-sharding-algorithm
             # 分库策略
             database-strategy:
               standard:
@@ -69,9 +82,6 @@ spring:
             props:
               strategy: standard
               algorithmClassName: com.gigi.config.TenantDbShardingAlgorithm
-
-server:
-  port: 9002
 
 mybatis-plus:
   #  mapper-locations: classpath:/mapper/**.xml,classpath:/sharding/mapper/**.xml
